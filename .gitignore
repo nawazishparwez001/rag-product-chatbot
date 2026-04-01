@@ -4,9 +4,6 @@
 # Google service account credentials — contains private key, never commit
 google_credentials.json
 
-# ChromaDB vector database — large binary files, rebuild locally
-chroma_db/
-
 # Python cache files
 __pycache__/
 *.pyc

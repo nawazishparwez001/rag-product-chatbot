@@ -3,14 +3,30 @@ from dotenv import load_dotenv
 import anthropic
 from retriever import retrieve
 
-# Load the ANTHROPIC_API_KEY from the .env file.
-# Without this, the key stays in .env and never touches the code —
-# which means it's safe to push the code to GitHub.
+# Load from .env for local development.
+# On Streamlit Cloud, secrets are injected via st.secrets instead.
 load_dotenv()
 
+
+def get_api_key():
+    """
+    Get the Anthropic API key from whichever source is available.
+    - Locally: loaded from .env file via load_dotenv()
+    - Streamlit Cloud: injected via st.secrets
+
+    We try st.secrets first so Streamlit Cloud always takes precedence.
+    If streamlit isn't installed or secrets aren't set, we fall back to
+    the environment variable set by load_dotenv().
+    """
+    try:
+        import streamlit as st
+        return st.secrets["ANTHROPIC_API_KEY"]
+    except Exception:
+        return os.getenv("ANTHROPIC_API_KEY")
+
+
 # Initialize the Anthropic client once at module level.
-# It automatically picks up ANTHROPIC_API_KEY from the environment.
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = anthropic.Anthropic(api_key=get_api_key())
 
 # The Claude model to use for generating answers.
 # claude-3-5-haiku is fast and cheap — good for a personal chatbot.
